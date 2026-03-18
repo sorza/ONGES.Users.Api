@@ -1,3 +1,5 @@
 <Solution>
   <Project Path="ONGES.Users.Api/ONGES.Users.Api.csproj" Id="01954ac6-6fcf-4946-bc56-95a03248cedd" />
+  <Project Path="ONGES.Users.Application/ONGES.Users.Application.csproj" Id="44dd9e1c-5b93-4608-b9e6-2ab7732c8cff" />
+  <Project Path="ONGES.Users.Domain/ONGES.Users.Domain.csproj" Id="22de306d-afc7-444a-b89d-8ed3b39d8188" />
 </Solution>
