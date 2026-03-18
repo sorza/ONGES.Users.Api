@@ -20,15 +20,7 @@ namespace ONGES.Users.Domain.Users.Entities
             Email = email;
             Password = password;
             Profile = profileType;
-        }
-
-        private User(Guid id, string name, string password, Email email, EProfileType profile) : base(id)
-        {
-            Name = name;
-            Password = Password.CreateFromHash(password);
-            Email = email;
-            Profile = profile;
-        }
+        }        
 
         #endregion
 
@@ -41,9 +33,9 @@ namespace ONGES.Users.Domain.Users.Entities
 
         #endregion
 
-        #region Factories Methods
+        #region Factory Method
 
-        public static User Create(string name, string password, string email, EProfileType profile)
+        public static User Create(string name, Password password, Email email, EProfileType profile)
         {
             if (string.IsNullOrWhiteSpace(name))
                 throw new NullOrEmptyNameException(ErrorMessage.User.NullOrEmpty);
@@ -54,7 +46,7 @@ namespace ONGES.Users.Domain.Users.Entities
             var senha_result = Password.Create(password);
             var email_result = Email.Create(email);
 
-            return new User(Guid.NewGuid(), name, senha_result, email_result, profile);
+            return new User(Guid.NewGuid(), name, email_result, senha_result, profile);
         }        
 
         #endregion
