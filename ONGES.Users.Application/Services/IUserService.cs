@@ -1,9 +1,9 @@
-﻿using ONGES.Users.Application.Shared.Results;
-using ONGES.Users.Infrastructure.Users.Requests;
-using ONGES.Users.Infrastructure.Users.Responses;
+﻿using ONGES.Users.Application.DTOs.Requests;
+using ONGES.Users.Application.DTOs.Responses;
+using ONGES.Users.Domain.Shared.Results;
 using System.Linq.Expressions;
 
-namespace ONGES.Users.Application.Users.Services
+namespace ONGES.Users.Application.Services
 {
     public interface IUserService
     {
