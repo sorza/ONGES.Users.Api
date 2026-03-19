@@ -35,7 +35,7 @@ namespace ONGES.Users.Domain.Users.Entities
 
         #region Factory Method
 
-        public static User Create(string name, Password password, Email email, EProfileType profile)
+        public static User Create(string name, Email email, string password, EProfileType profile)
         {
             if (string.IsNullOrWhiteSpace(name))
                 throw new NullOrEmptyNameException(ErrorMessage.User.NullOrEmpty);
