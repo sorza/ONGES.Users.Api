@@ -1,7 +1,7 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Text.Json.Serialization;
 
-namespace ONGES.Users.Application.Shared.Results
+namespace ONGES.Users.Domain.Shared.Results
 {
     public class Result
     {

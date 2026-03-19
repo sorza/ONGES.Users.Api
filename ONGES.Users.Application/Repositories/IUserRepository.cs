@@ -1,7 +1,7 @@
 ﻿using ONGES.Users.Domain.Users.Entities;
 using ONGES.Users.Domain.Users.ValueObjects;
 
-namespace ONGES.Users.Application.Users.Repositories
+namespace ONGES.Users.Application.Repositories
 {
     public interface IUserRepository : IRepository<User>
     {

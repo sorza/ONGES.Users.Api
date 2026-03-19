@@ -1,7 +1,7 @@
 ﻿using ONGES.Users.Domain.Shared.Entities;
 using System.Linq.Expressions;
 
-namespace ONGES.Users.Application.Users.Repositories
+namespace ONGES.Users.Application.Repositories
 {
     public interface IRepository<T> where T : Entity
     {

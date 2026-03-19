@@ -1,6 +1,6 @@
 ﻿using ONGES.Users.Domain.Users.Entities;
 
-namespace ONGES.Users.Application.Users.Services
+namespace ONGES.Users.Application.Services
 {
     public interface IJwtTokenService
     {

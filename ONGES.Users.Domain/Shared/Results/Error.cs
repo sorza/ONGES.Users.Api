@@ -1,4 +1,4 @@
-﻿namespace ONGES.Users.Application.Shared.Results
+﻿namespace ONGES.Users.Domain.Shared.Results
 {
     public record Error(string Code, string Message)
     {
