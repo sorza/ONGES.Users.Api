@@ -2,8 +2,10 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using ONGES.Users.Application.Repositories;
+using ONGES.Users.Application.Services;
 using ONGES.Users.Infrastructure.Data;
 using ONGES.Users.Infrastructure.Repositories;
+using ONGES.Users.Infrastructure.Services;
 
 namespace ONGES.Users.Infrastructure
 {
@@ -11,12 +13,11 @@ namespace ONGES.Users.Infrastructure
     {
         public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
         {
-
             services.AddDbContext<AppDbContext>(options =>
                 options.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
 
-
             services.AddScoped<IUserRepository, UserRepository>();
+            services.AddScoped<IUserService, UserService>();
 
             return services;
         }
