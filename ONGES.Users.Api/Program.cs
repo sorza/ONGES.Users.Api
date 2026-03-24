@@ -1,6 +1,10 @@
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi;
 using ONGES.Users.Infrastructure;
 using ONGES.Users.Infrastructure.Data;
+using System.Reflection;
 
 namespace ONGES.Users.Api
 {
@@ -13,9 +17,74 @@ namespace ONGES.Users.Api
             builder.Services.AddInfrastructure(builder.Configuration);
           
             builder.Services.AddAuthorization();
-
-            builder.Services.AddSwaggerGen();
             builder.Services.AddOpenApi();
+
+            builder.Services.AddSwaggerGen(c =>
+            {
+                var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+                var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+                c.IncludeXmlComments(xmlPath);
+
+                c.SwaggerDoc("v1", new OpenApiInfo
+                {
+                    Title = "ONGES.Users.Api",
+                    Version = "v1"
+                });
+
+                c.CustomSchemaIds(n => n.FullName);
+
+                c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+                {
+                    Name = "Authorization",
+                    In = ParameterLocation.Header,
+                    Type = SecuritySchemeType.Http,
+                    Scheme = "bearer",
+                    BearerFormat = "JWT",
+                    Description = "Digite seu token"
+                });
+
+                c.AddSecurityRequirement(_ => new OpenApiSecurityRequirement
+                {
+                    {
+                        new OpenApiSecuritySchemeReference("Bearer"),
+                        []
+                    }
+                });
+
+            });
+
+            builder.Services.AddHttpContextAccessor();
+
+            builder.Services
+            .AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
+            .AddJwtBearer(options =>
+            {
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    ValidIssuer = builder.Configuration["Jwt:Issuer"],
+
+                    ValidateAudience = true,
+                    ValidAudience = builder.Configuration["Jwt:Audience"],
+
+                    ValidateLifetime = true,
+                    ClockSkew = TimeSpan.Zero,
+
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(
+                    Convert.FromBase64String(builder.Configuration["Jwt:Key"]!))
+                };
+            });
+
+            builder.Services.AddAuthorization(options =>
+            {
+                options.AddPolicy("SomenteGestor", policy =>
+                    policy.RequireRole("Gestor"));
+            });
 
             var app = builder.Build();
 
