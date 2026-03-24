@@ -12,6 +12,7 @@ using System.Linq.Expressions;
 namespace ONGES.Users.Infrastructure.Services
 {
     public class UserService(IUserRepository repository,
+                             IJwtTokenService jwtService,
                              IValidator<UserRequest> userValidator,
                              IValidator<AuthRequest> authValidator) : IUserService
     {
@@ -39,9 +40,29 @@ namespace ONGES.Users.Infrastructure.Services
 
         }
 
-        public Task<Result<AuthResponse>> AuthAsync(AuthRequest request, string ip, string device, string correlationId, CancellationToken cancellationToken = default)
+        public async Task<Result<AuthResponse>> AuthAsync(AuthRequest request, string ip, string device, string correlationId, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            var email = Email.Create(request.Email);
+
+            var user = await repository.Auth(email, cancellationToken);
+
+            if(user is null)
+                return Result.Failure<AuthResponse>(new Error("401", "Credenciais inválidas."));
+
+            if(!user.Password.Verify(request.Password))
+                return Result.Failure<AuthResponse>(new Error("401", "Credenciais inválidas."));
+
+            if(!user.Active)
+                return Result.Failure<AuthResponse>(new Error("403", "Usuário inativo."));
+
+            var tokenInfo = jwtService.CreateToken(user);
+
+            //TODO: Criar evento de usuário autenticado
+            //TODO: Anexar evento ao eventStore
+            //TODO: Publicar evento para fila de mensagens
+
+            return Result.Success(new AuthResponse(tokenInfo.Token, tokenInfo.ExpiresAt));
+
         }
 
         public async Task<Result<IEnumerable<UserResponse>>> GetAllUsersAsync(Expression<Func<User, bool>> predicate, CancellationToken cancellationToken = default)
