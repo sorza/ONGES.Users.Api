@@ -42,6 +42,12 @@ namespace ONGES.Users.Infrastructure.Services
 
         public async Task<Result<AuthResponse>> AuthAsync(AuthRequest request, string ip, string device, string correlationId, CancellationToken cancellationToken = default)
         {
+
+            var validation = authValidator.Validate(request);
+            
+            if(!validation.IsValid)
+                return Result.Failure<AuthResponse>(new Error("400", string.Join(", ", validation.Errors.Select(e => e.ErrorMessage))));
+
             var email = Email.Create(request.Email);
 
             var user = await repository.Auth(email, cancellationToken);
