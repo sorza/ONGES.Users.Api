@@ -11,7 +11,8 @@ namespace ONGES.Users.Api.Endpoints
             endpoints.MapGroup("v1/users")
                 .WithTags("Usuários")
                 .MapEndpoint<Register>()
-                .MapEndpoint<Auth>();
+                .MapEndpoint<Auth>()
+                .MapEndpoint<GetById>();
         }
 
         private static IEndpointRouteBuilder MapEndpoint<TEndpoint>(this IEndpointRouteBuilder app)
