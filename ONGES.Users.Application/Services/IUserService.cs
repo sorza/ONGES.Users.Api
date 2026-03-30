@@ -11,7 +11,8 @@ namespace ONGES.Users.Application.Services
         Task<Result<UserResponse>> AddUserAsync(UserRequest request, string correlationId, CancellationToken cancellationToken = default);
         Task<Result<AuthResponse>> AuthAsync(AuthRequest request, string ip, string device, string correlationId, CancellationToken cancellationToken = default);
         Task<Result<UserResponse>> GetUserAsync(Expression<Func<User, bool>> predicate, CancellationToken cancellationToken = default);
-        Task<Result<IEnumerable<UserResponse>>> GetAllUsersAsync(Expression<Func<User, bool>> predicate, CancellationToken cancellationToken = default);
+        Task<Result<IEnumerable<UserResponse>>> GetAllUsersAsync(CancellationToken cancellationToken = default);
+        Task<Result<IEnumerable<UserResponse>>> GetUsersAsync(Expression<Func<User, bool>> predicate, CancellationToken cancellationToken = default);
         Task<Result> RemoveUserAsync(Guid id, string correlationId, CancellationToken cancellationToken = default);
     }
 }

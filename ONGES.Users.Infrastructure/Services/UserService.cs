@@ -70,11 +70,11 @@ namespace ONGES.Users.Infrastructure.Services
             return Result.Success(new AuthResponse(tokenInfo.Token, tokenInfo.ExpiresAt));
 
         }
+               
 
-        public async Task<Result<IEnumerable<UserResponse>>> GetAllUsersAsync(Expression<Func<User, bool>> predicate, CancellationToken cancellationToken = default)
+        public async Task<Result<IEnumerable<UserResponse>>> GetAllUsersAsync(CancellationToken cancellationToken = default)
         {
-            var result = await repository.GetAllAsync(predicate, cancellationToken);
-
+            var result = await repository.GetAllAsync(u => true, cancellationToken);
             var userResponses = result!.Select(user => new UserResponse(user.Id, user.Name, user.Email, user.Profile.ToString(), user.Active));
             return Result.Success(userResponses);
         }
@@ -102,6 +102,19 @@ namespace ONGES.Users.Infrastructure.Services
 
             await repository.DeleteAsync(user.Id, cancellationToken);
             return Result.Success(new UserResponse(user.Id, user.Name, user.Email, user.Profile.ToString(), user.Active));
+        }
+
+        public Task<Result<IEnumerable<UserResponse>>> GetAllUsersAsync(Expression<Func<User, bool>> predicate, CancellationToken cancellationToken = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task<Result<IEnumerable<UserResponse>>> GetUsersAsync(Expression<Func<User, bool>> predicate, CancellationToken cancellationToken = default)
+        {
+            var result = await repository.GetAllAsync(predicate, cancellationToken);
+
+            var userResponses = result!.Select(user => new UserResponse(user.Id, user.Name, user.Email, user.Profile.ToString(), user.Active));
+            return Result.Success(userResponses);
         }
     }
 }
