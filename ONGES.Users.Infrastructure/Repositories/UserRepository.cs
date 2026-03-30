@@ -11,6 +11,6 @@ namespace ONGES.Users.Infrastructure.Repositories
         protected readonly DbSet<User> _users = context.Set<User>();
 
         public async Task<User?> Auth(Email email, CancellationToken cancellationToken)
-            => await _users.AsNoTracking().FirstOrDefaultAsync(u => u.Email == email, cancellationToken);        
+            => await _users.AsNoTracking().FirstOrDefaultAsync(u => u.Email.Address == email.Address, cancellationToken);        
     }
 }
