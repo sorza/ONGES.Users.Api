@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
+using ONGES.Users.Api.Endpoints;
 using ONGES.Users.Infrastructure;
 using ONGES.Users.Infrastructure.Data;
 using System.Reflection;
@@ -22,8 +23,7 @@ namespace ONGES.Users.Api
             builder.Services.AddSwaggerGen(c =>
             {
                 var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
-                var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
-                c.IncludeXmlComments(xmlPath);
+                var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);               
 
                 c.SwaggerDoc("v1", new OpenApiInfo
                 {
@@ -117,7 +117,7 @@ namespace ONGES.Users.Api
 
             app.UseAuthorization();
 
-            app.MapGet("/", () => "Api On!");
+            app.MapEndpoints();
 
             app.Run();
         }

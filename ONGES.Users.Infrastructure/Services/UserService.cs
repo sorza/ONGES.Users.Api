@@ -23,7 +23,7 @@ namespace ONGES.Users.Infrastructure.Services
             if(!validation.IsValid)
                 return Result.Failure<UserResponse>(new Error("400", string.Join(", ", validation.Errors.Select(e => e.ErrorMessage))));
 
-            var userExists = await repository.ExistsAsync(u => u.Email == request.Email, cancellationToken);
+            var userExists = await repository.ExistsAsync(u => u.Email.Address == request.Email, cancellationToken);
 
             if(userExists)
                 return Result.Failure<UserResponse>(new Error("409", "Este usuário já está cadastrado."));

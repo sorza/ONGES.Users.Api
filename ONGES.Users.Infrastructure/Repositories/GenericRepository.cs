@@ -30,7 +30,7 @@ namespace ONGES.Users.Infrastructure.Repositories
         public async Task<bool> ExistsAsync(Expression<Func<T, bool>> predicate, CancellationToken cancellationToken = default)
             => await _dbSet.AnyAsync(predicate, cancellationToken);
 
-        public async Task<IEnumerable<T>?> GetAllAsync(Expression<Func<T, bool>> predicate, CancellationToken cancellationToken = default)
+        public async Task<IEnumerable<T>?> GetAllAsync(Expression<Func<T, bool>> predicate, CancellationToken cancellationToken = default)           
             => await _dbSet.Where(predicate).ToListAsync(cancellationToken);
 
         public async Task<T?> GetAsync(Expression<Func<T, bool>> predicate, CancellationToken cancellationToken = default)
