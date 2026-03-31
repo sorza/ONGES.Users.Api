@@ -5,7 +5,7 @@ using Microsoft.OpenApi;
 using ONGES.Users.Api.Endpoints;
 using ONGES.Users.Infrastructure;
 using ONGES.Users.Infrastructure.Data;
-using System.Reflection;
+using Scalar.AspNetCore;
 
 namespace ONGES.Users.Api
 {
@@ -16,41 +16,46 @@ namespace ONGES.Users.Api
             var builder = WebApplication.CreateBuilder(args);
 
             builder.Services.AddInfrastructure(builder.Configuration);
-          
-            builder.Services.AddAuthorization();
-            builder.Services.AddOpenApi();
 
-            builder.Services.AddSwaggerGen(c =>
+            builder.Services.AddOpenApi(options =>
             {
-                var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
-                var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);               
-
-                c.SwaggerDoc("v1", new OpenApiInfo
+                options.AddDocumentTransformer((document, context, ct) =>
                 {
-                    Title = "ONGES.Users.Api",
-                    Version = "v1"
-                });
-
-                c.CustomSchemaIds(n => n.FullName);
-
-                c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
-                {
-                    Name = "Authorization",
-                    In = ParameterLocation.Header,
-                    Type = SecuritySchemeType.Http,
-                    Scheme = "bearer",
-                    BearerFormat = "JWT",
-                    Description = "Digite seu token"
-                });
-
-                c.AddSecurityRequirement(_ => new OpenApiSecurityRequirement
-                {
+                    document.Info = new OpenApiInfo
                     {
-                        new OpenApiSecuritySchemeReference("Bearer"),
-                        []
-                    }
-                });
+                        Title = "ONGES.Users.Api",
+                        Version = "v1"
+                    };
 
+                    document.Components ??= new OpenApiComponents();
+                    document.Components.SecuritySchemes ??= new Dictionary<string, IOpenApiSecurityScheme>();
+                    document.Components.SecuritySchemes["Bearer"] = new OpenApiSecurityScheme
+                    {
+                        Type = SecuritySchemeType.Http,
+                        Scheme = "bearer",
+                        BearerFormat = "JWT",
+                        Description = "Digite seu token"
+                    };
+
+                    var requirement = new OpenApiSecurityRequirement
+                    {
+                        { new OpenApiSecuritySchemeReference("Bearer"), new List<string>() }
+                    };
+
+                    if (document.Paths is not null)
+                    {
+                        foreach (var path in document.Paths.Values)
+                        {
+                            foreach (var operation in path.Operations.Values)
+                            {
+                                operation.Security ??= [];
+                                operation.Security.Add(requirement);
+                            }
+                        }
+                    }
+
+                    return Task.CompletedTask;
+                });
             });
 
             builder.Services.AddHttpContextAccessor();
@@ -109,12 +114,17 @@ namespace ONGES.Users.Api
                         }
                     }
                 }
-                app.UseSwagger();
-                app.UseSwaggerUI();
+                app.MapOpenApi();
+                app.MapScalarApiReference(options =>
+                {
+                    options.WithTitle("ONGES.Users.Api");
+                    options.WithDefaultHttpClient(ScalarTarget.CSharp, ScalarClient.HttpClient);
+                });
             }
 
             app.UseHttpsRedirection();
 
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.MapEndpoints();

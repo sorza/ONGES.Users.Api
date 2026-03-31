@@ -12,7 +12,8 @@ namespace ONGES.Users.Api.Endpoints.Users
             .WithDescription("Exclui um usuário por ID na aplicação.")
             .Produces(204)
             .Produces<NotFound>(404)
-            .AllowAnonymous();
+            .Produces(401)                  
+            .RequireAuthorization("SomenteGestor");
 
         public static async Task<IResult> HandleAsync(
                 HttpContext context,

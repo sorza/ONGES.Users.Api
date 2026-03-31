@@ -12,6 +12,7 @@ namespace ONGES.Users.Api.Endpoints
                 .WithTags("Usuários")
                 .MapEndpoint<Register>()
                 .MapEndpoint<Auth>()
+                .MapEndpoint<AuthCheck>()
                 .MapEndpoint<GetById>()
                 .MapEndpoint<GetAll>()
                 .MapEndpoint<Delete>();
