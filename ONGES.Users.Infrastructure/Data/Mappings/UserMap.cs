@@ -13,23 +13,22 @@ namespace ONGES.Users.Infrastructure.Data.Mappings
 
             builder.HasKey(u => u.Id);
 
-            builder.OwnsOne(x => x.Email, email =>
+            builder.ComplexProperty(x => x.Email, email =>
             {
                 email.Property(x => x.Address)
-                .HasColumnName("Email")
-                .HasColumnType("VARCHAR")
-                .HasMaxLength(Email.MaxLength)
-                .IsRequired(true);
+                    .HasColumnName("Email")
+                    .HasColumnType("VARCHAR")
+                    .HasMaxLength(Email.MaxLength)
+                    .IsRequired(true);
             });
 
-            builder.OwnsOne(x => x.Password, password =>
+            builder.ComplexProperty(x => x.Password, password =>
             {
                 password.Property(s => s.Hash)
-                .HasColumnName("Password")
-                .HasMaxLength(256)
-                .IsRequired(true);
+                    .HasColumnName("Password")
+                    .HasMaxLength(256)
+                    .IsRequired(true);
             });
-
         }
     }
 }
