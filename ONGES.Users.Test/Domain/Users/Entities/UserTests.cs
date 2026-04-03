@@ -21,7 +21,7 @@ namespace ONGES.Users.Test.Domain.Users.Entities
         }
 
         [Fact]
-        public void CreateUser_ValidData_ShouldCreateUser()
+        public void CreateUser_DadosValidos_DeveCriarUsuario()
         {           
 
             //Act
@@ -35,9 +35,9 @@ namespace ONGES.Users.Test.Domain.Users.Entities
             Assert.Equal(profile, user.Profile);
             Assert.True(user.Active);
         }
-
+        
         [Fact]
-        public void CreateUser_InvalidName_ShouldThrowException()
+        public void CreateUser_NomeInvalido_DeveLancarErro()
         {
             // Arrange
             name = "";        
@@ -47,7 +47,7 @@ namespace ONGES.Users.Test.Domain.Users.Entities
         }
 
         [Fact]
-        public void CreateUser_InvalidProfile_ShouldThrowException()
+        public void CreateUser_PerfilInvalido_DeveLancarErro()
         {
             // Arrange
             profile = (EProfileType)999;
@@ -57,7 +57,7 @@ namespace ONGES.Users.Test.Domain.Users.Entities
         }
 
         [Fact]
-        public void CreateUser_InvalidPassword_ShouldThrowException()
+        public void CreateUser_SenhaInvalida_DeveLancarErro()
         {
             // Arrange            
             password = "invalid";
@@ -67,27 +67,27 @@ namespace ONGES.Users.Test.Domain.Users.Entities
         }
 
         [Fact]
-        public void CreateUser_InvalidEmail_ShouldThrowException()
+        public void CreateUser_EmailInvalido_DeveLancarErro()
         {
             // Act & Assert
             Assert.Throws<InvalidEmailException>(() => User.Create(name, Email.Create("email-invalido"), password, profile));
         }
 
         [Fact]
-        public void UpdateRole_InvalidProfile_ShouldThrowException()
+        public void UpdateRole_PerfilInvalido_DeveLancarErro()
         {   
             Assert.Throws<InvalidProfileException>(() => ValidUser.UpdateRole((EProfileType)999));
         }
 
         [Fact]
-        public void UpdateRole_ValidProfile_ShouldUpdateRole()
+        public void UpdateRole_PerfilValido_DeveAtualizarRole()
         {            
             ValidUser.UpdateRole(EProfileType.Doador);
             Assert.Equal(EProfileType.Doador, ValidUser.Profile);
         }
     
         [Fact]
-        public void Activate_ShouldSetActiveToTrue()
+        public void Activate_DeveAtivarOStatusDoUsuario()
         {
             ValidUser.Deactivate();
             ValidUser.Activate();
@@ -95,7 +95,7 @@ namespace ONGES.Users.Test.Domain.Users.Entities
         }
 
         [Fact]
-        public void Deactivate_ShouldSetActiveToFalse()
+        public void Deactivate_DeveDesativarOStatusDoUsuario()
         {
             ValidUser.Deactivate();
             Assert.False(ValidUser.Active);
