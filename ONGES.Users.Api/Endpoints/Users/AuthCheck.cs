@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http.HttpResults;
+using ONGES.Users.Application.DTOs.Responses;
 using System.Security.Claims;
 
 namespace ONGES.Users.Api.Endpoints.Users
@@ -10,7 +11,7 @@ namespace ONGES.Users.Api.Endpoints.Users
             .WithName("Verificação de Autenticação")
             .WithSummary("Verifica se o usuário está autenticado.")
             .WithDescription("Verifica se o usuário está autenticado na aplicação.")
-            .Produces<Ok>(200)
+            .Produces<Ok<AuthResponse>>(200)
             .Produces(401)
             .RequireAuthorization();
 

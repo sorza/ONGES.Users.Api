@@ -71,7 +71,6 @@ namespace ONGES.Users.Infrastructure.Services
 
         }
                
-
         public async Task<Result<IEnumerable<UserResponse>>> GetAllUsersAsync(CancellationToken cancellationToken = default)
         {
             var result = await repository.GetAllAsync(u => true, cancellationToken);
@@ -97,17 +96,46 @@ namespace ONGES.Users.Infrastructure.Services
                 return Result.Failure(new Error("404", "Usuário não encontrado."));
 
             //TODO: Criar evento de usuário removido
-            //TODO: Anexar evento ao eventStore
-            //TODO: Publicar evento para fila de mensagens
+            //TODO: Anexar evento ao eventStore         
 
             await repository.DeleteAsync(user.Id, cancellationToken);
             return Result.Success(new UserResponse(user.Id, user.Name, user.Email, user.Profile.ToString(), user.Active));
         }
 
-        public Task<Result<IEnumerable<UserResponse>>> GetAllUsersAsync(Expression<Func<User, bool>> predicate, CancellationToken cancellationToken = default)
+        public async Task<Result> DeactivateUserAsync(Guid id, string correlationId, CancellationToken cancellationToken = default) 
         {
-            throw new NotImplementedException();
+            var user = await repository.GetAsync(u => u.Id == id, cancellationToken);
+
+            if (user is null)
+                return Result.Failure(new Error("404", "Usuário não encontrado."));
+
+            user.Deactivate();
+
+            //TODO: Criar evento de usuário desativado
+            //TODO: Anexar evento ao eventStore  
+
+            await repository.UpdateAsync(user, cancellationToken);
+            return Result.Success(new UserResponse(user.Id, user.Name, user.Email, user.Profile.ToString(), user.Active));
         }
+
+        public async Task<Result> ActivateUserAsync(Guid id, string correlationId, CancellationToken cancellationToken = default)
+        {
+            var user = await repository.GetAsync(u => u.Id == id, cancellationToken);
+            
+            if (user is null)
+                return Result.Failure(new Error("404", "Usuário não encontrado."));
+
+            user.Activate();
+
+            //TODO: Criar evento de usuário ativado
+            //TODO: Anexar evento ao eventStore  
+
+            await repository.UpdateAsync(user, cancellationToken);
+            return Result.Success(new UserResponse(user.Id, user.Name, user.Email, user.Profile.ToString(), user.Active));
+        }
+
+        public async Task<Result<IEnumerable<UserResponse>>> GetActiveUsersAsync(CancellationToken cancellationToken = default)
+            => await GetUsersAsync(u => u.Active, cancellationToken);
 
         public async Task<Result<IEnumerable<UserResponse>>> GetUsersAsync(Expression<Func<User, bool>> predicate, CancellationToken cancellationToken = default)
         {
@@ -115,6 +143,26 @@ namespace ONGES.Users.Infrastructure.Services
 
             var userResponses = result!.Select(user => new UserResponse(user.Id, user.Name, user.Email, user.Profile.ToString(), user.Active));
             return Result.Success(userResponses);
+        }
+
+        public async Task<Result> UpdateRoleUserAsync(UpdateRoleRequest request, string correlationId, CancellationToken cancellationToken = default)
+        {
+            var user = await repository.GetAsync(u => u.Id == request.userId, cancellationToken);
+
+            if (user is null)
+                return Result.Failure(new Error("404", "Usuário não encontrado."));
+
+            if (!Enum.TryParse<EProfileType>(request.role.ToString(), true, out var profile))
+                return Result.Failure(new Error("400", "Perfil inválido."));
+
+            user.UpdateRole(profile);
+
+            //TODO: Criar evento de usuário ativado
+            //TODO: Anexar evento ao eventStore 
+
+            await repository.UpdateAsync(user, cancellationToken);
+
+            return Result.Success(new UserResponse(user.Id, user.Name, user.Email, user.Profile.ToString(), user.Active));
         }
     }
 }

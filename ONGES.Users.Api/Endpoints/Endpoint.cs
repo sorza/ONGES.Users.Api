@@ -8,13 +8,19 @@ namespace ONGES.Users.Api.Endpoints
         {
             var endpoints = app.MapGroup("");
 
-            endpoints.MapGroup("v1/users")
+            endpoints.MapGroup("v1/auth")
+                .WithTags("Autenticação")
+                .MapEndpoint<Auth>()
+                .MapEndpoint<AuthCheck>();                
+
+             endpoints.MapGroup("v1/users")
                 .WithTags("Usuários")
                 .MapEndpoint<Register>()
-                .MapEndpoint<Auth>()
-                .MapEndpoint<AuthCheck>()
                 .MapEndpoint<GetById>()
                 .MapEndpoint<GetAll>()
+                .MapEndpoint<UpdateRole>()
+                .MapEndpoint<Activate>()
+                .MapEndpoint<Deactivate>()
                 .MapEndpoint<Delete>();
         }
 

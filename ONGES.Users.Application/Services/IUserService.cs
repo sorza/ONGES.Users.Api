@@ -12,7 +12,10 @@ namespace ONGES.Users.Application.Services
         Task<Result<AuthResponse>> AuthAsync(AuthRequest request, string ip, string device, string correlationId, CancellationToken cancellationToken = default);
         Task<Result<UserResponse>> GetUserAsync(Expression<Func<User, bool>> predicate, CancellationToken cancellationToken = default);
         Task<Result<IEnumerable<UserResponse>>> GetAllUsersAsync(CancellationToken cancellationToken = default);
-        Task<Result<IEnumerable<UserResponse>>> GetUsersAsync(Expression<Func<User, bool>> predicate, CancellationToken cancellationToken = default);
+        Task<Result<IEnumerable<UserResponse>>> GetActiveUsersAsync(CancellationToken cancellationToken = default);
         Task<Result> RemoveUserAsync(Guid id, string correlationId, CancellationToken cancellationToken = default);
+        Task<Result> DeactivateUserAsync(Guid id, string correlationId, CancellationToken cancellationToken = default);
+        Task<Result> ActivateUserAsync(Guid id, string correlationId, CancellationToken cancellationToken = default);
+        Task<Result> UpdateRoleUserAsync(UpdateRoleRequest request, string correlationId, CancellationToken cancellationToken = default);
     }
 }

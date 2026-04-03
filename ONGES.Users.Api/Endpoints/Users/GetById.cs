@@ -12,7 +12,7 @@ namespace ONGES.Users.Api.Endpoints.Users
             .WithSummary("Obtém um usuário por ID.")
             .WithDescription("Obtém um usuário por ID na aplicação.")
             .Produces<Ok<UserResponse>>(200)
-            .Produces<NotFound>(404)
+            .Produces<NotFound<UserResponse>>(404)
             .AllowAnonymous();
 
         public static async Task<IResult> HandleAsync(

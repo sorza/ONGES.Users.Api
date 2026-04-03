@@ -12,7 +12,7 @@ namespace ONGES.Users.Api.Endpoints.Users
             .WithSummary("Obtém todos os usuários.")
             .WithDescription("Obtém todos os usuários na aplicação.")
             .Produces<Ok<List<UserResponse>>>(200)
-            .AllowAnonymous();
+            .RequireAuthorization("SomenteGestor");
 
         public static async Task<IResult> HandleAsync(
                 IUserService service,

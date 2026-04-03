@@ -47,7 +47,20 @@ namespace ONGES.Users.Domain.Users.Entities
             var email_result = Email.Create(email);
 
             return new User(Guid.NewGuid(), name, email_result, senha_result, profile);
-        }        
+        }
+
+        #endregion
+
+        #region Methods
+        public void Deactivate() => Active = false;
+        public void Activate() => Active = true;
+        public void UpdateRole(EProfileType profile)
+        {
+            if (!Enum.IsDefined(typeof(EProfileType), profile))
+                throw new InvalidProfileException(ErrorMessage.User.InvalidProfileType);
+
+            Profile = profile;
+        }
 
         #endregion
 

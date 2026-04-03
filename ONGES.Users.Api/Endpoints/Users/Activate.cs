@@ -4,16 +4,16 @@ using ONGES.Users.Application.Services;
 
 namespace ONGES.Users.Api.Endpoints.Users
 {
-    public class Delete : IEndpoint
+    public class Activate : IEndpoint
     {
         public static void Map(IEndpointRouteBuilder app)
-        => app.MapDelete("/{id:guid}", HandleAsync)
-            .WithName("Excluir")
-            .WithSummary("Exclui um usuário por ID.")
-            .WithDescription("Exclui um usuário por ID na aplicação.")
-            .Produces(204)
+        => app.MapPut("/activate/{id:guid}", HandleAsync)
+            .WithName("Ativar")
+            .WithSummary("Ativa um usuário por ID.")
+            .WithDescription("Ativa um usuário por ID na aplicação.")
+            .Produces<Ok<UserResponse>>(200)
             .Produces<NotFound<UserResponse>>(404)
-            .Produces(401)                  
+            .Produces(401)
             .RequireAuthorization("SomenteGestor");
 
         public static async Task<IResult> HandleAsync(
@@ -23,9 +23,9 @@ namespace ONGES.Users.Api.Endpoints.Users
                 CancellationToken cancellationToken = default)
         {
             var correlationId = context.Items["CorrelationId"]?.ToString();
-            var result = await service.RemoveUserAsync(id, correlationId!, cancellationToken);
+            var result = await service.ActivateUserAsync(id, correlationId!, cancellationToken);
             return result.IsSuccess
-                ? Results.NoContent()
+                ? Results.Ok(result)
                 : Results.NotFound(result);
         }
     }

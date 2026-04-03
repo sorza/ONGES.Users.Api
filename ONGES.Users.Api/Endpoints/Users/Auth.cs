@@ -12,8 +12,8 @@ namespace ONGES.Users.Api.Endpoints.Users
             .WithName("Autenticação")
             .WithSummary("Autentica um usuário.")
             .WithDescription("Autentica um usuário na aplicação.")
-            .Produces<Ok<UserResponse>>(200)
-            .Produces<BadRequest<UserResponse>>(400)
+            .Produces<Ok<AuthResponse>>(200)
+            .Produces<BadRequest<AuthResponse>>(400)
             .AllowAnonymous();
 
         private static async Task<IResult> HandleAsync(
