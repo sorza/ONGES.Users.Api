@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
 using ONGES.Users.Api.Endpoints;
+using ONGES.Users.Api.Middlewares;
 using ONGES.Users.Infrastructure;
 using ONGES.Users.Infrastructure.Data;
 using Scalar.AspNetCore;
@@ -121,6 +122,8 @@ namespace ONGES.Users.Api
                     options.WithDefaultHttpClient(ScalarTarget.CSharp, ScalarClient.HttpClient);
                 });
             }
+
+            app.UseMiddleware<CorrelationIdMiddleware>();
 
             app.UseHttpsRedirection();
 
