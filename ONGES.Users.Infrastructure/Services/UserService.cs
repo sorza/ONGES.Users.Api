@@ -122,10 +122,17 @@ namespace ONGES.Users.Infrastructure.Services
             if (user is null)
                 return Result.Failure(new Error("404", "Usuário não encontrado."));
 
-            user.Deactivate();
+            if(user.Active == false)
+                return Result.Failure(new Error("400", "Usuário já está inativo."));
 
-            //TODO: Criar evento de usuário desativado
-            //TODO: Anexar evento ao eventStore  
+            user.Deactivate();
+            
+            var evt = new UserStatusChangedEvent(user.Email, user.Active);
+            
+            var existingEvents = await eventStore.GetEventsAsync(user.Id.ToString());
+            var currentVersion = existingEvents.Count;
+
+            await eventStore.AppendAsync(user.Id.ToString(), evt, currentVersion, correlationId);
 
             await repository.UpdateAsync(user, cancellationToken);
             return Result.Success(new UserResponse(user.Id, user.Name, user.Email, user.Profile.ToString(), user.Active));
@@ -138,10 +145,17 @@ namespace ONGES.Users.Infrastructure.Services
             if (user is null)
                 return Result.Failure(new Error("404", "Usuário não encontrado."));
 
+            if (user.Active)
+                return Result.Failure(new Error("400", "Usuário já está ativo."));
+
             user.Activate();
 
-            //TODO: Criar evento de usuário ativado
-            //TODO: Anexar evento ao eventStore  
+            var evt = new UserStatusChangedEvent(user.Email, user.Active);
+
+            var existingEvents = await eventStore.GetEventsAsync(user.Id.ToString());
+            var currentVersion = existingEvents.Count;
+
+            await eventStore.AppendAsync(user.Id.ToString(), evt, currentVersion, correlationId);
 
             await repository.UpdateAsync(user, cancellationToken);
             return Result.Success(new UserResponse(user.Id, user.Name, user.Email, user.Profile.ToString(), user.Active));
