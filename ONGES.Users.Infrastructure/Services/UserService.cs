@@ -69,10 +69,14 @@ namespace ONGES.Users.Infrastructure.Services
 
             var tokenInfo = jwtService.CreateToken(user);
            
-            var evt = new UserLoginEvent(user.Name, ip, device);           
+            var evt = new UserLoginEvent(user.Name, ip, device);
 
-            await eventStore.AppendAsync(user.Id.ToString(), evt, 0, correlationId);
-           
+            var existingEvents = await eventStore.GetEventsAsync(user.Id.ToString());
+            var currentVersion = existingEvents.Count;
+
+            await eventStore.AppendAsync(user.Id.ToString(), evt, currentVersion, correlationId);
+
+
             //TODO: Publicar evento para fila de mensagens
 
             return Result.Success(new AuthResponse(tokenInfo.Token, tokenInfo.ExpiresAt));
