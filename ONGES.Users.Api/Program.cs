@@ -124,6 +124,7 @@ namespace ONGES.Users.Api
             }
 
             app.UseMiddleware<CorrelationIdMiddleware>();
+            app.UseMiddleware<GlobalExceptionMiddleware>();
 
             app.UseHttpsRedirection();
 
