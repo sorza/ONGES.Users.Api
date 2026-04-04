@@ -103,9 +103,13 @@ namespace ONGES.Users.Infrastructure.Services
 
             if(user is null)
                 return Result.Failure(new Error("404", "Usuário não encontrado."));
+            
+            var evt = new UserDeletedEvent(user.Email, user.Name, user.Profile);
+           
+            var existingEvents = await eventStore.GetEventsAsync(user.Id.ToString());
+            var currentVersion = existingEvents.Count;
 
-            //TODO: Criar evento de usuário removido
-            //TODO: Anexar evento ao eventStore         
+            await eventStore.AppendAsync(user.Id.ToString(), evt, currentVersion, correlationId);
 
             await repository.DeleteAsync(user.Id, cancellationToken);
             return Result.Success(new UserResponse(user.Id, user.Name, user.Email, user.Profile.ToString(), user.Active));

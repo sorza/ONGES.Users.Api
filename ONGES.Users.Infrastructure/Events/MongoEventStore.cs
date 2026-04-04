@@ -1,11 +1,18 @@
 ﻿using MongoDB.Driver;
 using ONGES.Users.Application.Events;
+using System.Reflection;
 using System.Text.Json;
 
 namespace ONGES.Users.Infrastructure.Events
 {
     public class MongoEventStore : IEventStore
     {
+        private static readonly Lazy<Dictionary<string, Type>> _eventTypeMap = new(() =>
+            AppDomain.CurrentDomain.GetAssemblies()
+                .SelectMany(a => a.GetTypes())
+                .Where(t => typeof(IDomainEvent).IsAssignableFrom(t) && !t.IsInterface && !t.IsAbstract)
+                .ToDictionary(t => t.Name, t => t));
+
         private readonly IMongoCollection<StoredEvent> _collection;
 
         public MongoEventStore(IMongoClient client, string database, string collection)
@@ -42,7 +49,7 @@ namespace ONGES.Users.Infrastructure.Events
             var stored = new StoredEvent
             {
                 AggregateId = aggregateId,
-                EventType = evt!.GetType().ToString().Split('.').Last(),
+                EventType = evt!.GetType().Name,
                 Data = JsonSerializer.Serialize(evt),
                 OccurredAt = DateTime.UtcNow,
                 Version = nextVersion,
@@ -65,9 +72,7 @@ namespace ONGES.Users.Infrastructure.Events
             foreach (var stored in storedEvents)
             {
 
-                var eventType = Type.GetType(stored.EventType);
-
-                if (eventType == null)
+                if (!_eventTypeMap.Value.TryGetValue(stored.EventType, out var eventType))
                     throw new InvalidOperationException($"Tipo de evento '{stored.EventType}' não encontrado.");
 
                 var evt = (IDomainEvent)JsonSerializer.Deserialize(stored.Data, eventType)!;
