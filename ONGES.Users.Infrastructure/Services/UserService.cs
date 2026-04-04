@@ -184,8 +184,12 @@ namespace ONGES.Users.Infrastructure.Services
 
             user.UpdateRole(profile);
 
-            //TODO: Criar evento de usuário ativado
-            //TODO: Anexar evento ao eventStore 
+            var evt = new UserRoleChangedEvent(user.Email, user.Profile);
+
+            var existingEvents = await eventStore.GetEventsAsync(user.Id.ToString());
+            var currentVersion = existingEvents.Count;
+
+            await eventStore.AppendAsync(user.Id.ToString(), evt, currentVersion, correlationId);
 
             await repository.UpdateAsync(user, cancellationToken);
 

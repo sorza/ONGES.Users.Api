@@ -36,6 +36,9 @@ namespace ONGES.Users.Test.Application.UserServices
             _userValidatorMock = new Mock<IValidator<UserRequest>>();
             _authValidatorMock = new Mock<IValidator<AuthRequest>>();
 
+            _eventStoreMock.Setup(e => e.GetEventsAsync(It.IsAny<string>()))
+                .ReturnsAsync(new List<IDomainEvent>());
+
             _sut = new UserService(
                 _repositoryMock.Object,
                 _jwtServiceMock.Object,
@@ -120,6 +123,7 @@ namespace ONGES.Users.Test.Application.UserServices
 
             Assert.True(result.IsSuccess);
             Assert.Equal("jwt-token", result.Value.AccessToken);
+            _eventStoreMock.Verify(e => e.AppendAsync(It.IsAny<string>(), It.IsAny<UserLoginEvent>(), 0, CorrelationId), Times.Once);
         }
 
         [Fact]
@@ -132,6 +136,7 @@ namespace ONGES.Users.Test.Application.UserServices
 
             Assert.True(result.IsFailure);
             Assert.Equal("400", result.Error.Code);
+            _eventStoreMock.Verify(e => e.AppendAsync(It.IsAny<string>(), It.IsAny<UserLoginEvent>(), It.IsAny<int>(), It.IsAny<string>()), Times.Never);
         }
 
         [Fact]
@@ -146,6 +151,7 @@ namespace ONGES.Users.Test.Application.UserServices
 
             Assert.True(result.IsFailure);
             Assert.Equal("401", result.Error.Code);
+            _eventStoreMock.Verify(e => e.AppendAsync(It.IsAny<string>(), It.IsAny<UserLoginEvent>(), It.IsAny<int>(), It.IsAny<string>()), Times.Never);
         }
 
         [Fact]
@@ -162,6 +168,7 @@ namespace ONGES.Users.Test.Application.UserServices
 
             Assert.True(result.IsFailure);
             Assert.Equal("401", result.Error.Code);
+            _eventStoreMock.Verify(e => e.AppendAsync(It.IsAny<string>(), It.IsAny<UserLoginEvent>(), It.IsAny<int>(), It.IsAny<string>()), Times.Never);
         }
 
         [Fact]
@@ -179,6 +186,7 @@ namespace ONGES.Users.Test.Application.UserServices
 
             Assert.True(result.IsFailure);
             Assert.Equal("403", result.Error.Code);
+            _eventStoreMock.Verify(e => e.AppendAsync(It.IsAny<string>(), It.IsAny<UserLoginEvent>(), It.IsAny<int>(), It.IsAny<string>()), Times.Never);
         }
 
         #endregion
@@ -271,6 +279,8 @@ namespace ONGES.Users.Test.Application.UserServices
 
             Assert.True(result.IsSuccess);
             _repositoryMock.Verify(r => r.DeleteAsync(user.Id, It.IsAny<CancellationToken>()), Times.Once);
+            _eventStoreMock.Verify(e => e.GetEventsAsync(user.Id.ToString()), Times.Once);
+            _eventStoreMock.Verify(e => e.AppendAsync(user.Id.ToString(), It.IsAny<UserDeletedEvent>(), It.IsAny<int>(), CorrelationId), Times.Once);
         }
 
         [Fact]
@@ -284,6 +294,7 @@ namespace ONGES.Users.Test.Application.UserServices
             Assert.True(result.IsFailure);
             Assert.Equal("404", result.Error.Code);
             _repositoryMock.Verify(r => r.DeleteAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()), Times.Never);
+            _eventStoreMock.Verify(e => e.AppendAsync(It.IsAny<string>(), It.IsAny<UserDeletedEvent>(), It.IsAny<int>(), It.IsAny<string>()), Times.Never);
         }
 
         #endregion
@@ -302,6 +313,24 @@ namespace ONGES.Users.Test.Application.UserServices
             Assert.True(result.IsSuccess);
             Assert.False(user.Active);
             _repositoryMock.Verify(r => r.UpdateAsync(user, It.IsAny<CancellationToken>()), Times.Once);
+            _eventStoreMock.Verify(e => e.GetEventsAsync(user.Id.ToString()), Times.Once);
+            _eventStoreMock.Verify(e => e.AppendAsync(user.Id.ToString(), It.IsAny<UserStatusChangedEvent>(), It.IsAny<int>(), CorrelationId), Times.Once);
+        }
+
+        [Fact]
+        public async Task DeactivateUserAsync_DeveRetornarFalha_QuandoUsuarioJaInativo()
+        {
+            var user = CreateValidUser();
+            user.Deactivate();
+            _repositoryMock.Setup(r => r.GetAsync(It.IsAny<Expression<Func<User, bool>>>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(user);
+
+            var result = await _sut.DeactivateUserAsync(user.Id, CorrelationId);
+
+            Assert.True(result.IsFailure);
+            Assert.Equal("400", result.Error.Code);
+            _repositoryMock.Verify(r => r.UpdateAsync(It.IsAny<User>(), It.IsAny<CancellationToken>()), Times.Never);
+            _eventStoreMock.Verify(e => e.AppendAsync(It.IsAny<string>(), It.IsAny<UserStatusChangedEvent>(), It.IsAny<int>(), It.IsAny<string>()), Times.Never);
         }
 
         [Fact]
@@ -314,6 +343,7 @@ namespace ONGES.Users.Test.Application.UserServices
 
             Assert.True(result.IsFailure);
             Assert.Equal("404", result.Error.Code);
+            _eventStoreMock.Verify(e => e.AppendAsync(It.IsAny<string>(), It.IsAny<UserStatusChangedEvent>(), It.IsAny<int>(), It.IsAny<string>()), Times.Never);
         }
 
         #endregion
@@ -333,6 +363,23 @@ namespace ONGES.Users.Test.Application.UserServices
             Assert.True(result.IsSuccess);
             Assert.True(user.Active);
             _repositoryMock.Verify(r => r.UpdateAsync(user, It.IsAny<CancellationToken>()), Times.Once);
+            _eventStoreMock.Verify(e => e.GetEventsAsync(user.Id.ToString()), Times.Once);
+            _eventStoreMock.Verify(e => e.AppendAsync(user.Id.ToString(), It.IsAny<UserStatusChangedEvent>(), It.IsAny<int>(), CorrelationId), Times.Once);
+        }
+
+        [Fact]
+        public async Task ActivateUserAsync_DeveRetornarFalha_QuandoUsuarioJaAtivo()
+        {
+            var user = CreateValidUser();
+            _repositoryMock.Setup(r => r.GetAsync(It.IsAny<Expression<Func<User, bool>>>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(user);
+
+            var result = await _sut.ActivateUserAsync(user.Id, CorrelationId);
+
+            Assert.True(result.IsFailure);
+            Assert.Equal("400", result.Error.Code);
+            _repositoryMock.Verify(r => r.UpdateAsync(It.IsAny<User>(), It.IsAny<CancellationToken>()), Times.Never);
+            _eventStoreMock.Verify(e => e.AppendAsync(It.IsAny<string>(), It.IsAny<UserStatusChangedEvent>(), It.IsAny<int>(), It.IsAny<string>()), Times.Never);
         }
 
         [Fact]
@@ -345,6 +392,7 @@ namespace ONGES.Users.Test.Application.UserServices
 
             Assert.True(result.IsFailure);
             Assert.Equal("404", result.Error.Code);
+            _eventStoreMock.Verify(e => e.AppendAsync(It.IsAny<string>(), It.IsAny<UserStatusChangedEvent>(), It.IsAny<int>(), It.IsAny<string>()), Times.Never);
         }
 
         #endregion
@@ -364,6 +412,8 @@ namespace ONGES.Users.Test.Application.UserServices
             Assert.True(result.IsSuccess);
             Assert.Equal(EProfileType.Gestor, user.Profile);
             _repositoryMock.Verify(r => r.UpdateAsync(user, It.IsAny<CancellationToken>()), Times.Once);
+            _eventStoreMock.Verify(e => e.GetEventsAsync(user.Id.ToString()), Times.Once);
+            _eventStoreMock.Verify(e => e.AppendAsync(user.Id.ToString(), It.IsAny<UserRoleChangedEvent>(), It.IsAny<int>(), CorrelationId), Times.Once);
         }
 
         [Fact]
@@ -377,6 +427,7 @@ namespace ONGES.Users.Test.Application.UserServices
 
             Assert.True(result.IsFailure);
             Assert.Equal("404", result.Error.Code);
+            _eventStoreMock.Verify(e => e.AppendAsync(It.IsAny<string>(), It.IsAny<UserRoleChangedEvent>(), It.IsAny<int>(), It.IsAny<string>()), Times.Never);
         }        
 
         #endregion
