@@ -68,9 +68,11 @@ namespace ONGES.Users.Infrastructure.Services
                 return Result.Failure<AuthResponse>(new Error("403", "Usuário inativo."));
 
             var tokenInfo = jwtService.CreateToken(user);
+           
+            var evt = new UserLoginEvent(user.Name, ip, device);           
 
-            //TODO: Criar evento de usuário autenticado
-            //TODO: Anexar evento ao eventStore
+            await eventStore.AppendAsync(user.Id.ToString(), evt, 0, correlationId);
+           
             //TODO: Publicar evento para fila de mensagens
 
             return Result.Success(new AuthResponse(tokenInfo.Token, tokenInfo.ExpiresAt));
@@ -81,6 +83,7 @@ namespace ONGES.Users.Infrastructure.Services
         {
             var result = await repository.GetAllAsync(u => true, cancellationToken);
             var userResponses = result!.Select(user => new UserResponse(user.Id, user.Name, user.Email, user.Profile.ToString(), user.Active));
+
             return Result.Success(userResponses);
         }
 
