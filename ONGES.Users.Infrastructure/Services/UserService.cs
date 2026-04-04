@@ -1,6 +1,8 @@
 ﻿using FluentValidation;
+using ONGES.Users.Application.DTOs.Events;
 using ONGES.Users.Application.DTOs.Requests;
 using ONGES.Users.Application.DTOs.Responses;
+using ONGES.Users.Application.Events;
 using ONGES.Users.Application.Repositories;
 using ONGES.Users.Application.Services;
 using ONGES.Users.Domain.Shared.Results;
@@ -13,6 +15,7 @@ namespace ONGES.Users.Infrastructure.Services
 {
     public class UserService(IUserRepository repository,
                              IJwtTokenService jwtService,
+                             IEventStore eventStore,
                              IValidator<UserRequest> userValidator,
                              IValidator<AuthRequest> authValidator) : IUserService
     {
@@ -30,8 +33,11 @@ namespace ONGES.Users.Infrastructure.Services
 
             var user = User.Create(request.Name, Email.Create(request.Email), request.Password, EProfileType.Doador);
 
-            //TODO: Criar evento de usuário criado
-            //TODO: Anexar evento ao eventStore
+           
+            var evt = new UserCreatedEvent(user.Name, user.Password, user.Email, user.Profile.ToString(), user.Active);
+          
+            await eventStore.AppendAsync(user.Id.ToString(), evt, 0, correlationId);
+
             //TODO: Publicar evento para fila de mensagens
 
             await repository.CreateAsync(user, cancellationToken);
