@@ -44,7 +44,11 @@ namespace ONGES.Users.Infrastructure.Events
             if (currentVersion != version)
                 throw new InvalidOperationException($"Conflito de concorrência. A versão esperada é {version}, mas a versão corrente é {currentVersion}");
 
+
             var nextVersion = version + 1;
+
+            if (evt!.GetType().Name == "UserLoginEvent")            
+                nextVersion--;                           
 
             var stored = new StoredEvent
             {
