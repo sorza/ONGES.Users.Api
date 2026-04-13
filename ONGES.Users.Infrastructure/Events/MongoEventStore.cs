@@ -47,9 +47,6 @@ namespace ONGES.Users.Infrastructure.Events
 
             var nextVersion = version + 1;
 
-            if (evt!.GetType().Name == "UserLoginEvent")            
-                nextVersion--;                           
-
             var stored = new StoredEvent
             {
                 AggregateId = aggregateId,

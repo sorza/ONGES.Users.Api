@@ -26,7 +26,10 @@ namespace ONGES.Users.Infrastructure
             var mongoDb = configuration["MongoSettings:Database"];
             var mongoCollection = configuration["MongoSettings:Collection"];
 
-            services.AddSingleton<IMongoClient>(sp => new MongoClient(mongoString));
+            var mongoSettings = MongoClientSettings.FromConnectionString(mongoString);
+            mongoSettings.ServerSelectionTimeout = TimeSpan.FromSeconds(5);
+
+            services.AddSingleton<IMongoClient>(sp => new MongoClient(mongoSettings));
 
             services.AddScoped<IEventStore>(sp =>
             {
