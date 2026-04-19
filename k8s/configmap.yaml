@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-config
+  namespace: onges-users
+data:
+  MongoSettings__Database: "EventStoreDb"
+  MongoSettings__Collection: "Events"
+  Jwt__Issuer: "ONGES.Users"
+  Jwt__Audience: "API"
+  Jwt__ExpiresMinutes: "120"

@@ -131,6 +131,8 @@ namespace ONGES.Users.Api
             app.UseAuthentication();
             app.UseAuthorization();
 
+            app.MapGet("/health", () => Results.Ok("Healthy"));
+
             app.MapEndpoints();
 
             app.Run();
