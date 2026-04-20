@@ -43,16 +43,3 @@ spec:
             limits:
               memory: "256Mi"
               cpu: "250m"
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: onges-users-api
-  namespace: onges-users
-spec:
-  type: LoadBalancer
-  selector:
-    app: onges-users-api
-  ports:
-    - port: 80
-      targetPort: 8080

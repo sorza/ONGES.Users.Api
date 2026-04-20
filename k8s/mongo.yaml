@@ -44,15 +44,3 @@ spec:
         - name: mongo-storage
           persistentVolumeClaim:
             claimName: mongo-data
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: mongo
-  namespace: onges-users
-spec:
-  selector:
-    app: mongo
-  ports:
-    - port: 27017
-      targetPort: 27017

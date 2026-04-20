@@ -52,15 +52,3 @@ spec:
         - name: mssql-storage
           persistentVolumeClaim:
             claimName: mssql-data
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: mssql
-  namespace: onges-users
-spec:
-  selector:
-    app: mssql
-  ports:
-    - port: 1433
-      targetPort: 1433
