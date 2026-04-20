@@ -1,7 +1,12 @@
 **/bin/
 **/obj/
 **/.vs/
+**/.vscode/
+**/.git/
 **/node_modules/
+**/*.user
+**/k8s/
+**/.github/
 Dockerfile
 .dockerignore
 *.md

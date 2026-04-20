@@ -1,8 +1,8 @@
-FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS base
+FROM mcr.microsoft.com/dotnet/aspnet:10.0-alpine AS base
 WORKDIR /app
 EXPOSE 8080
 
-FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
+FROM mcr.microsoft.com/dotnet/sdk:10.0-alpine AS build
 WORKDIR /src
 
 COPY ONGES.Users.Api/ONGES.Users.Api.csproj ONGES.Users.Api/
@@ -18,5 +18,9 @@ RUN dotnet publish ONGES.Users.Api/ONGES.Users.Api.csproj -c Release -o /app/pub
 
 FROM base AS final
 WORKDIR /app
+
+RUN addgroup -S appgroup && adduser -S appuser -G appgroup
+USER appuser
+
 COPY --from=build /app/publish .
 ENTRYPOINT ["dotnet", "ONGES.Users.Api.dll"]
