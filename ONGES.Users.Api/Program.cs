@@ -6,6 +6,7 @@ using ONGES.Users.Api.Endpoints;
 using ONGES.Users.Api.Middlewares;
 using ONGES.Users.Infrastructure;
 using ONGES.Users.Infrastructure.Data;
+using Prometheus;
 using Scalar.AspNetCore;
 
 namespace ONGES.Users.Api
@@ -127,11 +128,13 @@ namespace ONGES.Users.Api
             app.UseMiddleware<GlobalExceptionMiddleware>();
 
             app.UseHttpsRedirection();
+            app.UseHttpMetrics();
 
             app.UseAuthentication();
             app.UseAuthorization();
 
             app.MapGet("/health", () => Results.Ok("Healthy"));
+            app.MapMetrics();
 
             app.MapEndpoints();
 
