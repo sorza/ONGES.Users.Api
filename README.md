@@ -17,7 +17,7 @@ API REST para gerenciamento de usuários do sistema ONGES, desenvolvida com .NET
 
 ## Padrões e Arquitetura
 
-- **Clean Architecture** — Separação em camadas: Domain, Application, Infrastructure e Api
+- **Clean Architecture** — Separação em camadas: Domain, Application, Infrastructure e API
 - **Domain-Driven Design (DDD)** — Entidades, Value Objects, Exceptions de domínio
 - **Event Sourcing** — Registro de eventos de domínio no MongoDB
 - **Repository Pattern** — Abstração de acesso a dados com repositório genérico
@@ -32,7 +32,7 @@ ONGES.Users.Application/  → Contratos (interfaces, DTOs, eventos)
 ONGES.Users.Domain/       → Regras de negócio (entidades, value objects, exceções)
 ONGES.Users.Infrastructure/ → Implementações (repositórios, serviços, validadores, EF Core)
 ONGES.Users.Test/         → Testes unitários (domínio, aplicação, infraestrutura)
-k8s/                      → Manifests Kubernetes
+k8s/                      → Manifestos Kubernetes
 ```
 
 ## Pré-requisitos
@@ -49,7 +49,7 @@ git clone https://github.com/alexandresorza/ONGES.Users.Api.git
 cd ONGES.Users.Api
 ```
 
-### 2. Aplicar os manifests do Kubernetes
+### 2. Aplicar os manifestos do Kubernetes
 
 ```bash
 kubectl apply -f k8s/namespace.yaml
