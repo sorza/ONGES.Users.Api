@@ -95,27 +95,27 @@ namespace ONGES.Users.Api
 
             var app = builder.Build();
 
-            if (app.Environment.IsDevelopment())
+            using (var scope = app.Services.CreateScope())
             {
-                using (var scope = app.Services.CreateScope())
-                {
-                    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+                var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
 
-                    var retries = 5;
-                    while (retries > 0)
+                var retries = 5;
+                while (retries > 0)
+                {
+                    try
                     {
-                        try
-                        {
-                            db.Database.Migrate();
-                            break;
-                        }
-                        catch
-                        {
-                            retries--;
-                            Thread.Sleep(2000);
-                        }
+                        db.Database.Migrate();
+                        break;
+                    }
+                    catch
+                    {
+                        retries--;
+                        Thread.Sleep(2000);
                     }
                 }
+            }
+            if (app.Environment.IsDevelopment())
+            {
                 app.MapOpenApi();
                 app.MapScalarApiReference(options =>
                 {

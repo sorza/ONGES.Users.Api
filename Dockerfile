@@ -1,26 +1,22 @@
-FROM mcr.microsoft.com/dotnet/aspnet:10.0-alpine AS base
-WORKDIR /app
-EXPOSE 8080
-
-FROM mcr.microsoft.com/dotnet/sdk:10.0-alpine AS build
+FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /src
 
 COPY ONGES.Users.Api/ONGES.Users.Api.csproj ONGES.Users.Api/
 COPY ONGES.Users.Application/ONGES.Users.Application.csproj ONGES.Users.Application/
-COPY ONGES.Users.Domain/ONGES.Users.Domain.csproj ONGES.Users.Domain/
 COPY ONGES.Users.Infrastructure/ONGES.Users.Infrastructure.csproj ONGES.Users.Infrastructure/
+COPY ONGES.Users.Domain/ONGES.Users.Domain.csproj ONGES.Users.Domain/
 
-RUN dotnet restore ONGES.Users.Api/ONGES.Users.Api.csproj
+RUN dotnet restore "ONGES.Users.Api/ONGES.Users.Api.csproj"
 
 COPY . .
+WORKDIR /src/ONGES.Users.Api
+RUN dotnet publish "ONGES.Users.Api.csproj" -c Release -o /app/publish /p:UseAppHost=false
 
-RUN dotnet publish ONGES.Users.Api/ONGES.Users.Api.csproj -c Release -o /app/publish --no-restore
-
-FROM base AS final
+FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS runtime
 WORKDIR /app
-
-RUN addgroup -S appgroup && adduser -S appuser -G appgroup
-USER appuser
-
 COPY --from=build /app/publish .
+
+ENV ASPNETCORE_URLS=http://+:80
+EXPOSE 80
+
 ENTRYPOINT ["dotnet", "ONGES.Users.Api.dll"]
